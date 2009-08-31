@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+ "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">  
+  <title>Deutsch - K&ouml;lsch &Uuml;bersetzer</title>
+  <link rel="stylesheet" href="http://yui.yahooapis.com/2.7.0/build/reset-fonts-grids/reset-fonts-grids.css?x=3" type="text/css">
+  <link rel="stylesheet" href="http://yui.yahooapis.com/2.7.0/build/base/base.css?x=3" type="text/css">
+  <style type="text/css" media="screen">
+  #ft{
+    padding:10em 0 0 0;
+    font-size:80%;
+    color:#999;
+  }
+  #ft a{
+    color:#ccc;
+  }
+  </style>
+</head>
+<body>
+<div id="doc" class="yui-t7 yui-skin-sam">
+  <div id="hd" role="banner"><h1>Deutsch - K&ouml;lsch &Uuml;bersetzer</h1></div>
+  <div id="bd" role="main">
+   <div class="yui-g">
+     <div class="yui-u first">
+       <div id="deutsch"> 
+         <h2>Deutsch</h2>
+         <input id="deutschinput" type="text"> 
+         <div id="deutschoutput"></div>
+       </div>
+     </div>
+     <div class="yui-u">
+       <div id="koelsch"> 
+         <h2>K&ouml;lsch</h2>
+         <input id="koelschinput" type="text"> 
+         <div id="koelschoutput"></div> 
+       </div>
+     </div>
+   </div>
+    
+  </div>
+  <div id="ft" role="contentinfo"><p>Geschrieben von <a href="http://icant.co.uk">Christian Heilmann</a> mit <a href="http://developer.yahoo.com/yql">YQL</a> und <a href="http://developer.yahoo.com/yui">YUI</a>. Datensatz von <a href="http://www.magicvillage.de/~reinhard_kaaden/d-k.html">Reinhard Kaaden</a>, Idee von <a href="http://tomascaspers.de/">Tomas Caspers</a>, <a href="https://www.xing.com/profile/Nina_Wieland">Nina Wieland</a> und <a href="http://grochtdreis.de">Jens Grochdreis</a></p></div>
+</div>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yuiloader/yuiloader-min.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+var dktransdata = {};
+function dktrans(o){
+  var t = o.query.results.p;
+  dktransdata.koelsch = [];
+  dktransdata.deutsch = [];
+  dktransdata.dk = {};
+  dktransdata.kd = {};
+  for(var i=0;i<t.length;i+=2){
+    dktransdata.koelsch.push(t[i+1]);
+    dktransdata.deutsch.push(t[i]);
+    dktransdata.dk[t[i+1]] = t[i];
+    dktransdata.kd[t[i]] = t[i+1];
+  }
+  var loader = new YAHOO.util.YUILoader({
+    base: "",
+    require: ["autocomplete"],
+    loadOptional:false,
+    combine: true,
+    filter: "MIN",
+    allowRollup: true,
+    onSuccess: function() {
+      var di = YAHOO.util.Dom.get('deutschinput');
+      var ci = YAHOO.util.Dom.get('koelschinput');
+      
+      dktransdata.cologneDS = new YAHOO.util.LocalDataSource(
+        dktransdata.koelsch
+      );
+      dktransdata.cologneDS.responseSchema = {fields:['term']};
+      dktransdata.cologneAC = new YAHOO.widget.AutoComplete(
+        'koelschinput','koelschoutput',dktransdata.cologneDS
+      );
+      dktransdata.cologneAC.useShadow = true;
+      dktransdata.cologneAC.itemSelectEvent.subscribe(cologneHandler); 
+      function cologneHandler(s,a){
+        di.value = dktransdata.dk[a[2][0]];
+      }
+
+      dktransdata.germanDS = new YAHOO.util.LocalDataSource(
+        dktransdata.deutsch
+      );
+      dktransdata.germanDS.responseSchema = {fields:['term']};
+      dktransdata.germanAC = new YAHOO.widget.AutoComplete(
+        'deutschinput','deutschoutput',dktransdata.germanDS
+      );
+      dktransdata.germanAC.useShadow = true;
+      dktransdata.germanAC.itemSelectEvent.subscribe(germanHandler); 
+      function germanHandler(s,a){
+        ci.value = dktransdata.kd[a[2][0]];
+      }
+    }
+  });
+  loader.insert();
+}
+</script>
+<script type="text/ javascript" src="http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Fwww.magicvillage.de%2F~reinhard_kaaden%2Fd-k.html%22%20and%20xpath%3D%22%2F%2Ftable[1]%2Ftr%2Ftd%2Fp[not%28a%29]%22&format=json&env=http%3A%2F%2Fdktransdatatables.org%2Falltables.env&callback=dktrans">
+  </script>
+</body>
+</html>
